@@ -1,6 +1,11 @@
+import 'dotenv/config';
 import CSVParser from "../util/CSVParser.js"
 import LogTool from "../LogTool.js";
 import MerchantClassifier from "../util/MerchantClassifier.js";
+import rawMerchants from './data/merchants.json' with { type: 'json' }; 
+import MerchantMappingRepository from "../MerchantMappingRepository.js";
+import MerchantMapping from "../mongooseModels/MerchantMapping.js";
+import connectDB from "../util/DBConnector_Mongo.js";
 
 const logTool = new LogTool();
 const csvContent = `ï»¿Filter,Date,Description,Sub-description,Status,Type of Transaction,Amount
@@ -34,6 +39,46 @@ const csvContent = `ï»¿Filter,Date,Description,Sub-description,Status,Type of
 ,2026-02-02,audible,Amzn.Com/Bill090,posted,Debit,15.7`;
 const csvParser = new CSVParser({logTool});
 
-const content = csvParser.parseCSVContent(csvContent);
+const expenses = csvParser.parseCSVContent(csvContent);
+console.log("result:",expenses);
 
-console.log("result:",content);
+logTool.log("we will now classify");
+const merchants = rawMerchants.subject;
+const ownerId = 1;
+console.log("merchants",merchants);
+const merchantClassifier = new MerchantClassifier({merchants,logTool});
+const merchantMappingRepository = new MerchantMappingRepository({MerchantMappingModel :MerchantMapping});
+const newMappings = {};
+
+
+///TODO: create the map 
+
+expenses.forEach(expense=>{
+
+    // TODO: look for merchant in the map 
+  let foundMerchant =   merchantClassifier.classify(expense.description);
+
+  if(foundMerchant)
+  {
+    newMappings[expense.description] = {
+      merchantId:foundMerchant.merchantId,
+      merchantName: foundMerchant.merchantName,
+      confidence: 1,//foundMerchant.score,
+      confirmedByUser:true// false,
+
+    }
+  }
+ 
+});
+
+
+ 
+newMappings['bell canada'] = {
+"merchantId": 168,
+"merchantName": "Bell", 
+"confirmedByUser":true,
+"confidence":1
+}
+
+await connectDB();
+await merchantMappingRepository.bulkCreateOrUpdate(ownerId, newMappings);
