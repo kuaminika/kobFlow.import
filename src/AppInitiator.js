@@ -16,6 +16,7 @@ function AppInitiator(configs)
 
         
         const app = express();
+        app.use("/",router);
 
     }
 }

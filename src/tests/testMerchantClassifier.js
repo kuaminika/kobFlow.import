@@ -38,25 +38,28 @@ const csvContent = `ï»¿Filter,Date,Description,Sub-description,Status,Type of
 ,2026-02-03,patreon,Dublin 005,posted,Debit,13.5
 ,2026-02-02,audible,Amzn.Com/Bill090,posted,Debit,15.7`;
 const csvParser = new CSVParser({logTool});
-
+const DEFAULT_MERCHANT_ID = 1;
+const DEFAULT_CATEGORY_ID = 1;
+const KOB_HOLDER_ID = 1;
 const expenses = csvParser.parseCSVContent(csvContent);
-console.log("result:",expenses);
+//console.log("result:",expenses);
 
 logTool.log("we will now classify");
 const merchants = rawMerchants.subject;
 const ownerId = 1;
-console.log("merchants",merchants);
-const merchantClassifier = new MerchantClassifier({merchants,logTool});
+//console.log("merchants",merchants);
+//const merchantClassifier = new MerchantClassifier({merchants,logTool});
 const merchantMappingRepository = new MerchantMappingRepository({MerchantMappingModel :MerchantMapping});
+const merchantClassifier = new MerchantClassifier({merchants,logTool,merchantMappingRepository,ownerId});
 const newMappings = {};
 
 
 ///TODO: create the map 
 
-expenses.forEach(expense=>{
+expenses.forEach(async expense=>{
 
     // TODO: look for merchant in the map 
-  let foundMerchant =   merchantClassifier.classify(expense.description);
+  let foundMerchant =  await merchantClassifier.classify(expense.description);
 
   if(foundMerchant)
   {
@@ -67,11 +70,25 @@ expenses.forEach(expense=>{
       confirmedByUser:true// false,
 
     }
+
+    expense.merchantId = foundMerchant.merchantId;
+    expense.merchantName = foundMerchant.merchantName;
+    expense.categoryId = DEFAULT_CATEGORY_ID;
+    expense.kobHolderId = KOB_HOLDER_ID;
+  }
+  else
+  {
+    expense.description = expense.description.toLowerCase();
+    expense.merchantId = DEFAULT_MERCHANT_ID;
+    expense.categoryId = DEFAULT_CATEGORY_ID;
+    expense.kobHolderId = KOB_HOLDER_ID;
+
+
   }
  
 });
 
-
+//console.log("expenses after classification:",JSON.stringify(expenses,null,2)); 
  
 newMappings['bell canada'] = {
 "merchantId": 168,
