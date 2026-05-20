@@ -1,5 +1,6 @@
-function MerchantMappingRepository({ MerchantMappingModel }) {
+function MerchantMappingRepository({ logTool,dbConnector,MerchantMappingModel }) {
     const self = this;
+    dbConnector.connect();
 
     self.createMapping = async function (rawInfo) {
         await MerchantMappingModel.create(rawInfo);

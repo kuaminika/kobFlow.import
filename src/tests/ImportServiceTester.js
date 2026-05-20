@@ -1,13 +1,27 @@
+
 import 'dotenv/config';
-import CSVParser from "../util/CSVParser.js"
+import CSVParser from "../util/CSVParser.js";
 import LogTool from "../LogTool.js";
 import MerchantClassifier from "../util/MerchantClassifier.js";
-import rawMerchants from './data/merchants.json' with { type: 'json' }; 
 import MerchantMappingRepository from "../MerchantMappingRepository.js";
 import MerchantMapping from "../mongooseModels/MerchantMapping.js";
-import connectDB from "../util/DBConnector_Mongo.js";
+import APIClient from "../util/APIClient.js";
+import MerchantLookupService from "../services/MerchantLookupService.js";
+import ImportService from "../services/ImportService.js";   
+import DBConnector_Mongoose from "../util/DBConnector_Mongoose.js";
+
+const dbConnector = new DBConnector_Mongoose({logTool: new LogTool(), config: process.env});
 
 const logTool = new LogTool();
+const csvParser = new CSVParser({logTool});
+const defaultValues  = {
+    DEFAULT_MERCHANT_ID: 1,
+    DEFAULT_CATEGORY_ID: 1,
+    KOB_HOLDER_ID: 1    
+};
+
+
+
 const csvContent = `ï»¿Filter,Date,Description,Sub-description,Status,Type of Transaction,Amount
 "February 2026, From date=2026-02-01, To date=2026-02-28",2026-02-28,scotiabank transit,Toronto On,posted,Debit,15
 ,2026-02-27,adobe,San Jose 065,posted,Debit,29.88
@@ -37,65 +51,24 @@ const csvContent = `ï»¿Filter,Date,Description,Sub-description,Status,Type of
 ,2026-02-03,payment from - *****05*84,27,posted,Credit,-4080
 ,2026-02-03,patreon,Dublin 005,posted,Debit,13.5
 ,2026-02-02,audible,Amzn.Com/Bill090,posted,Debit,15.7`;
-const csvParser = new CSVParser({logTool});
-const DEFAULT_MERCHANT_ID = 1;
-const DEFAULT_CATEGORY_ID = 1;
-const KOB_HOLDER_ID = 1;
-const expenses = csvParser.parseCSVContent(csvContent);
-//console.log("result:",expenses);
 
-logTool.log("we will now classify");
-const merchants = rawMerchants.subject;
+
+const merchantClient = new APIClient({
+    clientTypeModel: { url: 'https://dev.korosol.com/kobFlow_dev/KobFlowAPIGateWay/API/index.php?context=Flows&requestAction=getAll&sourceContext=Merchant' },
+    apiKey: 'test-key'
+}); 
+
+const result = await merchantClient.fetchAll();
+const merchants = result.subject;
 const ownerId = 1;
-//console.log("merchants",merchants);
-//const merchantClassifier = new MerchantClassifier({merchants,logTool});
-const merchantMappingRepository = new MerchantMappingRepository({MerchantMappingModel :MerchantMapping});
+
+
+const merchantMappingRepository = new MerchantMappingRepository({logTool,dbConnector,MerchantMappingModel :MerchantMapping});
 const merchantClassifier = new MerchantClassifier({merchants,logTool,ownerId});
-const newMappings = {};
+const merchantLookupService = new MerchantLookupService({merchantClassifier,merchantMappingRepository,logTool});
 
+const importService = new ImportService({csvParser,merchantLookupService,logTool,defaultValues});
 
-///TODO: create the map 
+const importedExpenses = await importService.handleCSVImport(csvContent,ownerId); 
 
-expenses.forEach( expense=>{
-
-    // TODO: look for merchant in the map 
-  let foundMerchant =   merchantClassifier.classify(expense.description);
-
-  if(foundMerchant)
-  {
-    newMappings[expense.description] = {
-      merchantId:foundMerchant.merchantId,
-      merchantName: foundMerchant.merchantName,
-      confidence: 1,//foundMerchant.score,
-      confirmedByUser:true// false,
-
-    }
-
-    expense.merchantId = foundMerchant.merchantId;
-    expense.merchantName = foundMerchant.merchantName;
-    expense.categoryId = DEFAULT_CATEGORY_ID;
-    expense.kobHolderId = KOB_HOLDER_ID;
-  }
-  else
-  {
-    expense.description = expense.description.toLowerCase();
-    expense.merchantId = DEFAULT_MERCHANT_ID;
-    expense.categoryId = DEFAULT_CATEGORY_ID;
-    expense.kobHolderId = KOB_HOLDER_ID;
-
-
-  }
- 
-});
-
-//console.log("expenses after classification:",JSON.stringify(expenses,null,2)); 
- 
-newMappings['bell canada'] = {
-"merchantId": 168,
-"merchantName": "Bell", 
-"confirmedByUser":true,
-"confidence":1
-}
-
-await connectDB();
-await merchantMappingRepository.bulkCreateOrUpdate(ownerId, newMappings);
+console.log("Imported Expenses:", importedExpenses);
