@@ -9,7 +9,7 @@ import MerchantLookupService from "../services/MerchantLookupService.js";
 import ImportService from "../services/ImportService.js";   
 import DBConnector_Mongoose from "../util/DBConnector_Mongoose.js";
 
-function ImportServiceCreator(logTool) 
+function ImportServiceCreator({ logTool }) 
 {
     const self = this;
     const _private = {};

@@ -1,9 +1,9 @@
-import APIClient from "./util/APIClient";
+ 
 
 function ExpenseImportController({ logTool, importService,expenseService }) {
     const self = this;
 
-    self.parseExpenses = async function(req, res) {
+    self.parseCSVExpenses = async function(req, res) {
         try {
             const { csvContent, ownerId } = req.body;
             const importedExpenses = await importService.handleCSVImport(csvContent, ownerId);
@@ -26,3 +26,5 @@ function ExpenseImportController({ logTool, importService,expenseService }) {
         }
     }
 }
+
+export default ExpenseImportController;
