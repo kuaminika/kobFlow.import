@@ -9,18 +9,18 @@ import MerchantLookupService from "../services/MerchantLookupService.js";
 import ImportService from "../services/ImportService.js";   
 import DBConnector_Mongoose from "../util/DBConnector_Mongoose.js";
 
-function ImportServiceCreator({ logTool }) 
+function ImportServiceCreator({ logTool,configs}) 
 {
     const self = this;
     const _private = {};
     _private.logTool = logTool || new LogTool();
-    const dbConnector = new DBConnector_Mongoose({ logTool: _private.logTool, config: process.env });
+    const dbConnector = new DBConnector_Mongoose({ logTool: _private.logTool, config: configs });
     const csvParser = new CSVParser({ logTool: _private.logTool });
     const merchantClient = new APIClient({
         clientTypeModel: {
-            url: 'https://dev.korosol.com/kobFlow_dev/KobFlowAPIGateWay/API/index.php?context=Flows&requestAction=getAll&sourceContext=Merchant'
+            url: configs.MERCHANT_GETALL_URL
         },
-        apiKey: 'test-key'
+        apiKey: configs.MERCHANT_API_KEY
     });
     self.create = async function({ ownerId, defaultValues }) {
         const result = await merchantClient.fetch();

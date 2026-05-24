@@ -13,9 +13,9 @@ function ExpenseServiceCreator({logtool,configs}) {
     self.create = function(){
         const expenseApiClient= new APIClient({
             clientTypeModel: {
-                 baseUrl: configs.EXPENSE_API_BASE_URL,//'https://kobflow-dev.expense.korosol.com' ,
+                 baseUrl: configs.EXPENSE_API_BASE_URL, 
                  url: '/Expense'},
-                apiKey: 'test-key'
+                apiKey: configs.EXPENSE_API_KEY
         }); 
         const expenseService = new ExpenseService({ logTool: _private.logTool, expenseApiClient });
         return expenseService;
