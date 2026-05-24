@@ -20,8 +20,8 @@ const router = Router();
 
         logTool.log("Initializing application with configs: " + JSON.stringify(configs));
 
-        const importServiceCreator = new ImportServiceCreator({ logTool });
-        const expenseServiceCreator = new ExpenseServiceCreator({ logTool });
+        const importServiceCreator = new ImportServiceCreator({ logTool,configs });
+        const expenseServiceCreator = new ExpenseServiceCreator({ logTool,configs });
         
         const importService = await importServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues }).then(importService => {
             logTool.log("Import Service created successfully");

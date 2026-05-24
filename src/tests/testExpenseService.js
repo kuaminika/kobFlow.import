@@ -1,6 +1,7 @@
 
 
 
+import configs from '../configs.js'
 import LogTool from "../LogTool.js";
 import APIClient from "../util/APIClient.js";
 import ExpenseService from "../services/ExpenseService.js";
@@ -48,8 +49,8 @@ const defaultValues  = {
     DEFAULT_CATEGORY_ID: 1,
     KOB_HOLDER_ID: 1    
 };
-const expenseServiceCreator = new ExpenseServiceCreator({ logTool });
-const importServiceCreator = new ImportServiceCreator(logTool);
+const expenseServiceCreator = new ExpenseServiceCreator({ logTool, configs });
+const importServiceCreator = new ImportServiceCreator({ logTool, configs });
 const importService = await importServiceCreator.create({ ownerId, defaultValues });
 const expenses = await importService.handleCSVImport(csvContent, ownerId);
 const expenseService = expenseServiceCreator.create();

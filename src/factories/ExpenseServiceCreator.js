@@ -4,7 +4,7 @@ import APIClient from "../util/APIClient.js";
 import ExpenseService from "../services/ExpenseService.js";
 import ImportServiceCreator from "../factories/ImportServiceCreator.js";
 
-function ExpenseServiceCreator({logtool}) {
+function ExpenseServiceCreator({logtool,configs}) {
 
     const self = this;
     const _private = {};
@@ -13,7 +13,7 @@ function ExpenseServiceCreator({logtool}) {
     self.create = function(){
         const expenseApiClient= new APIClient({
             clientTypeModel: {
-                 baseUrl: 'https://kobflow-dev.expense.korosol.com' ,
+                 baseUrl: configs.EXPENSE_API_BASE_URL,//'https://kobflow-dev.expense.korosol.com' ,
                  url: '/Expense'},
                 apiKey: 'test-key'
         }); 
