@@ -58,6 +58,8 @@ jobs:
             MERCHANT_GETALL_URL=${{ vars.MERCHANT_GETALL_URL }}
             MERCHANT_API_KEY=${{ secrets.MERCHANT_API_KEY }}
             EOF
+            source ~/.bashrc
+            nvm use 20
             npm install --production
             pm2 reload ecosystem.config.cjs --update-env
             pm2 save
