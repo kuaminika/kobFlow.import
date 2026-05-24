@@ -7,6 +7,10 @@ function AppInitiator(configs)
     const self = this;
     const config = configs;
     self.init = function(){
+
+
+
+        
             /**
              you can set up the router here for example:
                

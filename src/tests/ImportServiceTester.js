@@ -58,7 +58,7 @@ const merchantClient = new APIClient({
     apiKey: 'test-key'
 }); 
 
-const result = await merchantClient.fetchAll();
+const result = await merchantClient.fetch();
 const merchants = result.subject;
 const ownerId = 1;
 
