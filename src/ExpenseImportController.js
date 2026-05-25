@@ -11,7 +11,9 @@ function ExpenseImportController({ logTool, importService,expenseService }) {
             const importedExpenses = await importService.handleCSVImport(csvContent, ownerId);
             res.json({ expenses: importedExpenses });
         } catch (error) {
+            logTool.log("An error has occured");
             logTool.log(error);
+            logTool.log(JSON.stringify(error));
             res.status(500).json({ error: 'Failed to import expenses' });
         }
     }
