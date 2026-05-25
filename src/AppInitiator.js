@@ -42,6 +42,7 @@ const router = Router();
  
         const app = express();
         app.use("/",router);
+        app.use(cors({origin:config.corsOrigin}));
         app.listen(config.port,()=>{
             logTool.log(`service running  ${config.serviceName} at port ${config.port}`)
 
