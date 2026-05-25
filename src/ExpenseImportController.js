@@ -7,7 +7,7 @@ function ExpenseImportController({ logTool, importService,expenseService }) {
         try {
             const { csvContent, ownerId } = req.body;
 
-            logTool.log("csvContent"+csvContent);
+            logTool.log(" will process this csvContent:"+csvContent);
             const importedExpenses = await importService.handleCSVImport(csvContent, ownerId);
             res.json({ expenses: importedExpenses });
         } catch (error) {
