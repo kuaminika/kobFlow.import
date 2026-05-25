@@ -7,6 +7,12 @@ function ExpenseImportController({ logTool, importService,expenseService }) {
         try {
             logTool.log("Inside parseCSVExpenses");
             logTool.log("req.body:"+JSON.stringify(req.body));
+
+           if (!req.body) {
+               const errMessage = 'Request body is missing. Ensure Content-Type is application/json.' ;
+                logTool.error(errMessage);
+                return res.status(400).json({ error:errMessage});
+            }
             const { csvContent, ownerId } = req.body;
 
             logTool.log(" will process this csvContent:"+csvContent);
