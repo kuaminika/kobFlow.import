@@ -5,6 +5,8 @@ function ExpenseImportController({ logTool, importService,expenseService }) {
 
     self.parseCSVExpenses = async function(req, res) {
         try {
+            logTool.log("Inside parseCSVExpenses");
+            logTool.log(req.body);
             const { csvContent, ownerId } = req.body;
 
             logTool.log(" will process this csvContent:"+csvContent);
