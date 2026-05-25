@@ -25,6 +25,7 @@ const router = Router();
         
         const importService = await importServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues }).then(importService => {
             logTool.log("Import Service created successfully");
+            return importService;
             // You can now use the importService instance to handle imports
         }).catch(error => {
             logTool.log(`Error creating Import Service: ${error.message}`);
