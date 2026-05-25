@@ -8,11 +8,17 @@ function ImportService({csvParser,
  
     this.handleCSVImport= async function(csvContent,ownerId)
     {
+        logTool.log("handleCSVImport called with ownerId: " + ownerId);
+        logTool.log("csvContent received: " + csvContent);
+    
         const mappings = {};
         const expenses = csvParser.parseCSVContent(csvContent);
+        logTool.log("parsed expenses count: " + expenses.length);
+        logTool.log("parsed expenses: " + JSON.stringify(expenses));
         for(const expense of expenses)
         {
         
+          logTool.log("processing expense: " + JSON.stringify(expense));
           const merchantLookUp =await merchantLookupService.lookup(expense.description);
       
           if(merchantLookUp)
