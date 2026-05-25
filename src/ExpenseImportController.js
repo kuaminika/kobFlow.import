@@ -6,6 +6,8 @@ function ExpenseImportController({ logTool, importService,expenseService }) {
     self.parseCSVExpenses = async function(req, res) {
         try {
             const { csvContent, ownerId } = req.body;
+
+            logTool.log("csvContent"+csvContent);
             const importedExpenses = await importService.handleCSVImport(csvContent, ownerId);
             res.json({ expenses: importedExpenses });
         } catch (error) {
