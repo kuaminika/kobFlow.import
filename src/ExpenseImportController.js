@@ -15,6 +15,13 @@ function ExpenseImportController({ logTool, importService,expenseService }) {
             }
             const { csvContent, ownerId } = req.body;
 
+           if (!csvContent) { 
+               const errMessage = 'csvContent is required but was not provided.' ;
+                logTool.error(errMessage);
+                return res.status(400).json({ error:errMessage});
+           }
+
+           
             logTool.log(" will process this csvContent:"+csvContent);
             const importedExpenses = await importService.handleCSVImport(csvContent, ownerId);
             res.json({ expenses: importedExpenses });
