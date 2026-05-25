@@ -47,11 +47,11 @@ jobs:
             APPLICATION_NAME=${{ vars.APPLICATION_NAME }}
             EXPENSE_API_BASE_URL=${{ vars.EXPENSE_API_BASE_URL }}
             EXPENSE_API_KEY=${{ secrets.EXPENSE_API_KEY }}
-            MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }}
-            MONGO_CLUSTER_NAME=${{ secrets.MONGO_CLUSTER_NAME }}
-            MONGO_HOST=${{ secrets.MONGO_HOST }}
-            MONGO_PORT=${{ secrets.MONGO_PORT }}
-            MONGO_USERNAME=${{ secrets.MONGO_USERNAME }}
+            MONGO_DB_NAME=${{ vars.MONGO_DB_NAME }}
+            MONGO_CLUSTER_NAME=${{ vars.MONGO_CLUSTER_NAME }}
+            MONGO_HOST=${{ vars.MONGO_HOST }}
+            MONGO_PORT=${{ vars.MONGO_PORT }}
+            MONGO_USERNAME=${{ vars.MONGO_USERNAME }}
             MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}
             CORS_ORIGIN=${{ vars.CORS_ORIGIN }}
             DEFAULT_ORG_ID=${{ vars.DEFAULT_ORG_ID }}
