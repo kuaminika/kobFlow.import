@@ -27,9 +27,9 @@ function ExpenseImportController({ logTool, importService,expenseService }) {
             res.json({ expenses: importedExpenses });
         } catch (error) {
             logTool.log("An error has occured");
-            logTool.log(error);
-            logTool.log(JSON.stringify(error));
-            res.status(500).json({ error: 'Failed to import expenses' });
+            logTool.log("An error has occurred: " + error.message);
+            logTool.log("Stack: " + error.stack);
+            res.status(500).json({ error: 'Failed to import expenses',detail: error.message });
         }
     }
 
