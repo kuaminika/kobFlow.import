@@ -2,7 +2,7 @@ name: Deploy Import Service
 on:
   push:
     branches:
-      - master
+      - main
       - dev*
 jobs:
   deploy:
