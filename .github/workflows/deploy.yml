@@ -1,0 +1,66 @@
+name: Deploy Import Service
+on:
+  push:
+    branches:
+      - master
+      - dev*
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ startsWith(github.ref_name, 'dev') && 'DEV' || 'PROD' }}
+    steps:
+      - name: debug variables
+        run: |
+            echo "Branch Name: ${{ github.ref_name }}"
+            echo "Selected Environment: ${{ startsWith(github.ref_name, 'dev') && 'DEV' || 'PROD' }}"
+            echo "ENV_DIR: ${{ vars.ENV_DIR }}"
+            echo "HTTP_PORT: ${{ vars.HTTP_PORT }}"
+            echo "DEFAULT_ORG_ID: ${{ vars.DEFAULT_ORG_ID }}"
+            echo "SERVICE_NAME: ${{ vars.SERVICE_NAME }}"
+            echo "APPLICATION_NAME: ${{ vars.APPLICATION_NAME }}"
+            echo "SERVER_USER: ${{ vars.SERVER_USER }}"
+            echo "EXPENSE_API_BASE_URL: ${{ vars.EXPENSE_API_BASE_URL }}"
+            echo "MERCHANT_GETALL_URL: ${{ vars.MERCHANT_GETALL_URL }}"
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_SSH_PORT }}
+          username: ${{ vars.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            ENVIRONMENT="${{ startsWith(github.ref_name, 'dev') && 'DEV' || 'PROD' }}"
+            echo "Deploying branch '${{ github.ref_name }}' to environment: $ENVIRONMENT"
+            cd ${{ vars.ENV_DIR }}
+            git remote set-url origin https://x-access-token:${{ secrets.KOBFLOW_SERVICES_TOKEN }}@github.com/${{ github.repository }}.git
+            git config --global credential.helper store
+            echo "https://x-access-token:${{ secrets.KOBFLOW_SERVICES_TOKEN }}@github.com" > ~/.git-credentials
+            git fetch --all
+            git checkout ${{ github.ref_name }} || git checkout -b ${{ github.ref_name }} --track origin/${{ github.ref_name }}
+            git pull origin ${{ github.ref_name }}
+            echo "Writing .env for $ENVIRONMENT"
+            rm -f .env
+            cat <<EOF > .env
+            HTTP_PORT=${{ vars.HTTP_PORT }}
+            SERVICE_NAME=${{ vars.SERVICE_NAME }}
+            APPLICATION_NAME=${{ vars.APPLICATION_NAME }}
+            EXPENSE_API_BASE_URL=${{ vars.EXPENSE_API_BASE_URL }}
+            EXPENSE_API_KEY=${{ secrets.EXPENSE_API_KEY }}
+            MONGO_DB_NAME=${{ vars.MONGO_DB_NAME }}
+            MONGO_CLUSTER_NAME=${{ vars.MONGO_CLUSTER_NAME }}
+            MONGO_HOST=${{ vars.MONGO_HOST }}
+            MONGO_PORT=${{ vars.MONGO_PORT }}
+            MONGO_USERNAME=${{ vars.MONGO_USERNAME }}
+            MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}
+            CORS_ORIGIN=${{ vars.CORS_ORIGIN }}
+            DEFAULT_ORG_ID=${{ vars.DEFAULT_ORG_ID }}
+            MERCHANT_GETALL_URL=${{ vars.MERCHANT_GETALL_URL }}
+            MERCHANT_API_KEY=${{ secrets.MERCHANT_API_KEY }}
+            EOF
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"            source ~/.bashrc
+            nvm use 20
+            npm install --production
+            pm2 reload ecosystem.config.cjs --update-env
+            pm2 save
