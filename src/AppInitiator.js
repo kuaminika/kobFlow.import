@@ -34,10 +34,12 @@ const router = Router();
           logTool.log("Expense Service created successfully");
 
        const expenseImportController = new ExpenseImportController({ logTool, importService, expenseService });
-
+       const merchantMappingController = new MerchantMappingController({ logTool, merchantLookupService });
 
        router.post("/parse-csv-expenses", expenseImportController.parseCSVExpenses);
        router.post("/bulk-insert-expenses", expenseImportController.doBulkInsert);
+       router.get("/mappings/:ownerId", merchantMappingController.getMappings);
+       router.post("/mappings/:ownerId", merchantMappingController.updateMappings);
       
  
         const app = express();
