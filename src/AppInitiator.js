@@ -3,6 +3,7 @@ import ImportServiceCreator from "./factories/ImportServiceCreator.js";
 import ExpenseServiceCreator from "./factories/ExpenseServiceCreator.js"; 
 import LogTool from "./LogTool.js";
 import ExpenseImportController from "./ExpenseImportController.js";
+import MerchantMappingController from "./MerchantMappingController.js";
 import cors from "cors";
 import { Router } from "express";
 const router = Router();
@@ -40,8 +41,8 @@ const router = Router();
        router.post("/parse-csv-expenses", expenseImportController.parseCSVExpenses);
        router.post("/bulk-insert-expenses", expenseImportController.doBulkInsert);
        router.get("/mappings/:ownerId", merchantMappingController.getMappings);
+       router.get("/health", (req, res) => res.send("ok"));
        router.post("/mappings/:ownerId", merchantMappingController.updateMappings);
-      
  
         const app = express();
      
