@@ -34,7 +34,8 @@ const router = Router();
         
         const expenseService =  expenseServiceCreator.create();
           logTool.log("Expense Service created successfully");
-
+        const merchantLookupdService = importServiceCreator.createOnlyMerchantLookupService({ ownerId: config.OWNER_ID, merchants: importService.getMerchantsForOwner(config.OWNER_ID)   });
+         logTool.log("Merchant Lookup Service created successfully");
        const expenseImportController = new ExpenseImportController({ logTool, importService, expenseService });
        const merchantMappingController = new MerchantMappingController({ logTool, merchantLookupService });
 
