@@ -24,13 +24,8 @@ const router = Router();
         const importServiceCreator = new ImportServiceCreator({ logTool,configs });
         const expenseServiceCreator = new ExpenseServiceCreator({ logTool,configs });
         //TODO: we should remove ownerId from the in the constructor and pass it only to the methods that need it, to avoid confusion and potential bugs. For now, we will keep it as is and refactor later if needed.
-        const importService = await importServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues }).then(importService => {
-            logTool.log("Import Service created successfully");
-            return importService;
-            // You can now use the importService instance to handle imports
-        }).catch(error => {
-            logTool.log(`Error creating Import Service: ${error.message}`);
-        });
+        const importService = importServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues });
+        
         
         const expenseService =  expenseServiceCreator.create();
           logTool.log("Expense Service created successfully");

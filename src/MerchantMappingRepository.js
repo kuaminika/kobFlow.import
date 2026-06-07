@@ -10,6 +10,10 @@ function MerchantMappingRepository({ logTool,dbConnector,MerchantMappingModel })
         return await MerchantMappingModel.findOne({ rawDescription, ownerId });
     }
 
+    self.findAllByOwnerId = async function (ownerId) {
+        return await MerchantMappingModel.find({ ownerId });
+    }
+
     self.updateMapping = async function (rawDescription, ownerId, updateData) {
         return await MerchantMappingModel.findOneAndUpdate(
             { rawDescription, ownerId },

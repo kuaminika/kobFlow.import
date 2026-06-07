@@ -6,6 +6,12 @@ function MerchantLookupService({ merchantClassifier, logTool,merchantMappingRepo
     self.repo = merchantMappingRepository;
     self.logTool = logTool;
 
+    self.findAllMappingsForOwner = async function(ownerId)
+    {
+        self.logTool.log(`Finding all mappings for ownerId ${ownerId}...`);
+        return await self.repo.findAllByOwnerId(ownerId);
+    }
+
     self.lookup = async function({ description ,ownerId}) {
         await self.classifier.getMerchantsForOwner(ownerId); // Ensure classifier has the latest merchants for the owner
         self.logTool.log(`Looking up merchant for description "${description}"... and ownerId ${ownerId}`);

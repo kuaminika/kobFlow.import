@@ -25,24 +25,9 @@ function ImportServiceCreator({ logTool,configs})
         },
         apiKey: configs.MERCHANT_API_KEY
     });
-//    self.getMerchantsForOwner = async function(ownerId) {
-//        _private.logTool.log(`Fetching merchants for ownerId ${ownerId}...`);
-//         if (_private.cachedMerchants.has(ownerId)) {
-//             _private.logTool.log(`Returning cached merchants for ownerId ${ownerId}`);
-//             return _private.cachedMerchants.get(ownerId);
-//         }
 
-//         try {
-//             const merchants = await merchantClient.fetch().then(r => r.subject);
-//             _private.cachedMerchants.set(ownerId, merchants || []);
-//              _private.logTool.log(`Fetched and cached ${_private.cachedMerchants.get(ownerId).length} merchants for ownerId ${ownerId}`);
-//             return merchants;
-//         } catch (error) {
-//             _private.logTool.log(`Error fetching merchants: ${error.message}`);
-//             return []; // not cached — next call will retry
-//         }
-//     }
-    self.create = async function({ defaultValues }) {
+    
+    self.create =  function({ defaultValues }) {
    
   
         const merchantLookupService =   self.createOnlyMerchantLookupService();
@@ -51,7 +36,7 @@ function ImportServiceCreator({ logTool,configs})
     }
 
 
-    self.createOnlyMerchantLookupService =  async function() {
+    self.createOnlyMerchantLookupService =   function() {
          
         const merchantMappingRepository = new MerchantMappingRepository({
             logTool: _private.logTool,
