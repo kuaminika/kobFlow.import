@@ -19,7 +19,7 @@ function ImportService({csvParser,
         {
         
           logTool.log("processing expense: " + JSON.stringify(expense));
-          const merchantLookUp =await merchantLookupService.lookup(expense.description);
+          const merchantLookUp =await merchantLookupService.lookup({ description: expense.description, ownerId });
       
           if(merchantLookUp)
           {

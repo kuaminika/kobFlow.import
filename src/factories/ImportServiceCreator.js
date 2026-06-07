@@ -15,8 +15,8 @@ function ImportServiceCreator({ logTool,configs})
     const _private = {};
     _private.logTool = logTool || new LogTool();
 
-    //TODO : needs to handle multiple owners — currently it will cache merchants for the first owner and return the same for all subsequent calls, even if they are for different owners. To fix this, we can change the cache structure to store merchants separately for each ownerId.
-    _private.cachedMerchants = {fetched: false, data: []};
+  
+    _private.cachedMerchants =  new Map();// {fetched: false, data: []};
     const dbConnector = new DBConnector_Mongoose({ logTool: _private.logTool, config: configs });
     const csvParser = new CSVParser({ logTool: _private.logTool });
     const merchantClient = new APIClient({
@@ -25,34 +25,33 @@ function ImportServiceCreator({ logTool,configs})
         },
         apiKey: configs.MERCHANT_API_KEY
     });
-   self.getMerchantsForOwner = async function(ownerId) {
-        if (_private.cachedMerchants.fetched) {
-            _private.logTool.log(`Returning cached merchants for ownerId ${ownerId}`);
-            return _private.cachedMerchants.data;
-        }
+//    self.getMerchantsForOwner = async function(ownerId) {
+//        _private.logTool.log(`Fetching merchants for ownerId ${ownerId}...`);
+//         if (_private.cachedMerchants.has(ownerId)) {
+//             _private.logTool.log(`Returning cached merchants for ownerId ${ownerId}`);
+//             return _private.cachedMerchants.get(ownerId);
+//         }
 
-        try {
-            const merchants = await merchantClient.fetch().then(r => r.subject);
-            _private.cachedMerchants = { fetched: true, data: merchants };
-            return merchants;
-        } catch (error) {
-            _private.logTool.log(`Error fetching merchants: ${error.message}`);
-            return []; // not cached — next call will retry
-        }
-    }
-    self.create = async function({ ownerId, defaultValues }) {
-        const result = await self.getMerchantsForOwner(ownerId);
-        const merchants = result || [];
-         _private.logTool.log(`Fetched ${merchants.length} merchants for ownerId ${ownerId}`);
-
+//         try {
+//             const merchants = await merchantClient.fetch().then(r => r.subject);
+//             _private.cachedMerchants.set(ownerId, merchants || []);
+//              _private.logTool.log(`Fetched and cached ${_private.cachedMerchants.get(ownerId).length} merchants for ownerId ${ownerId}`);
+//             return merchants;
+//         } catch (error) {
+//             _private.logTool.log(`Error fetching merchants: ${error.message}`);
+//             return []; // not cached — next call will retry
+//         }
+//     }
+    self.create = async function({ defaultValues }) {
+   
   
-        const merchantLookupService =   self.createOnlyMerchantLookupService({ ownerId ,merchants});
+        const merchantLookupService =   self.createOnlyMerchantLookupService();
 
         return new ImportService({ csvParser, merchantLookupService, logTool: _private.logTool, defaultValues });
     }
 
 
-    self.createOnlyMerchantLookupService =  async function({ ownerId ,merchants}) {
+    self.createOnlyMerchantLookupService =  async function() {
          
         const merchantMappingRepository = new MerchantMappingRepository({
             logTool: _private.logTool,
@@ -60,7 +59,7 @@ function ImportServiceCreator({ logTool,configs})
             MerchantMappingModel: MerchantMapping
         });
 
-        const merchantClassifier = new MerchantClassifier({ merchants, logTool: _private.logTool, ownerId });
+        const merchantClassifier = new MerchantClassifier({  logTool: _private.logTool ,merchantClient });
         const merchantLookupService = new MerchantLookupService({ merchantClassifier,
             merchantMappingRepository,
             logTool:_private.logTool });

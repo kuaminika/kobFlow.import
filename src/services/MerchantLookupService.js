@@ -1,19 +1,20 @@
-function MerchantLookupService({ merchantClassifier, logTool,merchantMappingRepository,ownerId }) {
+function MerchantLookupService({ merchantClassifier, logTool,merchantMappingRepository }) {
 
     const self = this;
 
     self.classifier = merchantClassifier;
     self.repo = merchantMappingRepository;
-    self.ownerId = ownerId;
     self.logTool = logTool;
 
-    self.lookup = async function(description) {
-        const fromClassifyer = await this.classifier.classify(description);
+    self.lookup = async function({ description ,ownerId}) {
+        await self.classifier.getMerchantsForOwner(ownerId); // Ensure classifier has the latest merchants for the owner
+        self.logTool.log(`Looking up merchant for description "${description}"... and ownerId ${ownerId}`);
+        const fromClassifyer =  this.classifier.classify({ description, ownerId: ownerId });
         if (fromClassifyer) return fromClassifyer;
 
          this.logTool.log(`Nothing from classifier "${description}", checking repository...`);
 
-        const fromRepo = await this.repo.findByDescription(description,self.ownerId); 
+        const fromRepo = await this.repo.findByDescription(description,ownerId); 
         if(!fromRepo){
             this.logTool.log(`No mapping found for "${description}" in repository`);
             return null;

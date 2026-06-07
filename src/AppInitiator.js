@@ -23,7 +23,7 @@ const router = Router();
 
         const importServiceCreator = new ImportServiceCreator({ logTool,configs });
         const expenseServiceCreator = new ExpenseServiceCreator({ logTool,configs });
-        
+        //TODO: we should remove ownerId from the in the constructor and pass it only to the methods that need it, to avoid confusion and potential bugs. For now, we will keep it as is and refactor later if needed.
         const importService = await importServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues }).then(importService => {
             logTool.log("Import Service created successfully");
             return importService;
@@ -34,7 +34,7 @@ const router = Router();
         
         const expenseService =  expenseServiceCreator.create();
           logTool.log("Expense Service created successfully");
-        const merchantLookupdService = importServiceCreator.createOnlyMerchantLookupService({ ownerId: config.OWNER_ID, merchants: importService.getMerchantsForOwner(config.OWNER_ID)   });
+        const merchantLookupService = importServiceCreator.createOnlyMerchantLookupService();
          logTool.log("Merchant Lookup Service created successfully");
        const expenseImportController = new ExpenseImportController({ logTool, importService, expenseService });
        const merchantMappingController = new MerchantMappingController({ logTool, merchantLookupService });

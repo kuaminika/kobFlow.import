@@ -20,5 +20,6 @@ const otherSettings = {EXPENSE_API_BASE_URL:process.env.EXPENSE_API_BASE_URL,
 export default {...dbSettings,port,defaultOrgId,
      serviceName:process.env.SERVICE_NAME, 
      applicationName:process.env.APPLICATION_NAME,
-     corsOrigin:process.env.CORS_ORIGIN, ...otherSettings
+     corsOrigin:process.env.CORS_ORIGIN, ...otherSettings,
+     OWNER_ID: process.env.OWNER_ID
     };

@@ -1,11 +1,13 @@
 import 'dotenv/config';
+import configs from '../configs.js'
 import CSVParser from "../util/CSVParser.js"
 import LogTool from "../LogTool.js";
 import MerchantClassifier from "../util/MerchantClassifier.js";
 import rawMerchants from './data/merchants.json' with { type: 'json' }; 
 import MerchantMappingRepository from "../MerchantMappingRepository.js";
 import MerchantMapping from "../mongooseModels/MerchantMapping.js";
-import connectDB from "../util/DBConnector_Mongo.js";
+import DBConnector_Mongoose from "../util/DBConnector_Mongoose.js";
+import APIClient from "../util/APIClient.js";
 
 const logTool = new LogTool();
 const csvContent = `ï»¿Filter,Date,Description,Sub-description,Status,Type of Transaction,Amount
@@ -43,23 +45,27 @@ const DEFAULT_CATEGORY_ID = 1;
 const KOB_HOLDER_ID = 1;
 const expenses = csvParser.parseCSVContent(csvContent);
 //console.log("result:",expenses);
-
+const merchantClient = new APIClient({ logTool, clientTypeModel: { url: configs.MERCHANT_GETALL_URL } , apiKey: configs.apiKey});
 logTool.log("we will now classify");
 const merchants = rawMerchants.subject;
 const ownerId = 1;
 //console.log("merchants",merchants);
 //const merchantClassifier = new MerchantClassifier({merchants,logTool});
-const merchantMappingRepository = new MerchantMappingRepository({MerchantMappingModel :MerchantMapping});
-const merchantClassifier = new MerchantClassifier({merchants,logTool,ownerId});
+
+const merchantMappingRepository = new MerchantMappingRepository({logTool,
+  dbConnector:new DBConnector_Mongoose({ logTool,
+                                         config: configs }),
+  MerchantMappingModel :MerchantMapping});
+const merchantClassifier = new MerchantClassifier({logTool, merchantClient});
 const newMappings = {};
 
 
 ///TODO: create the map 
-
-expenses.forEach( expense=>{
+ await merchantClassifier.getMerchantsForOwner(ownerId);
+expenses.forEach( async (expense) => {
 
     // TODO: look for merchant in the map 
-  let foundMerchant =   merchantClassifier.classify(expense.description);
+  let foundMerchant =   merchantClassifier.classify({ description: expense.description, ownerId });
 
   if(foundMerchant)
   {
@@ -97,5 +103,5 @@ newMappings['bell canada'] = {
 "confidence":1
 }
 
-await connectDB();
+
 await merchantMappingRepository.bulkCreateOrUpdate(ownerId, newMappings);
