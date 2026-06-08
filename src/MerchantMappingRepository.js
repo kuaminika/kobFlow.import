@@ -66,18 +66,22 @@ function MerchantMappingRepository({ logTool,dbConnector,MerchantMappingModel })
 
 
     self.renewMappings = async function (ownerId, newMappings) {
-        
+        logTool.log(`Renewing mappings for owner ${ownerId}. Deleting old mappings and inserting new ones.`);
+        logTool.log(`New mappings to insert: ${JSON.stringify(newMappings)}`);
         await MerchantMappingModel.deleteMany({ ownerId });
         const mappingsToCreate = newMappings.map(m =>{
             const {_id, ...dataWithoutId} = m; // Exclude _id if it exists
             return {
                 ...dataWithoutId,
                 ownerId,
+                merchantId: m.merchantId||1,
+                merchantName: m.merchantName||"Unknown",
                 rawDescription: m.rawDescription,
                 updatedAt: new Date()
             }
 
         });
+        logTool.log(`Mappings to create after processing: ${JSON.stringify(mappingsToCreate)}`);
         return await MerchantMappingModel.insertMany(mappingsToCreate);
 
 

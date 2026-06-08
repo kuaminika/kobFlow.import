@@ -104,4 +104,4 @@ newMappings['bell canada'] = {
 }
 
 
-await merchantMappingRepository.bulkCreateOrUpdate(ownerId, newMappings);
+await merchantMappingRepository.renewMappings(ownerId, Object.entries(newMappings).map(([rawDescription, data]) => ({ rawDescription, ...data })));

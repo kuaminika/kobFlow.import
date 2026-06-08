@@ -32,6 +32,7 @@ function MerchantLookupService({ merchantClassifier, logTool,merchantMappingRepo
 
     self.updateMappings = async function(newMappings,ownerId)
     {
+        this.logTool.log(`Updating mappings for owner ${ownerId} with new mappings: ${JSON.stringify(newMappings)}`);
         
         await this.repo.renewMappings(ownerId, newMappings);
         this.logTool.log(`Mappings updated in repository for owner ${ownerId}: ${JSON.stringify(newMappings)}`);    
