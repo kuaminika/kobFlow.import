@@ -38,7 +38,7 @@ const router = Router();
        router.post("/bulk-insert-expenses", expenseImportController.doBulkInsert);
        router.get("/mappings/:ownerId", merchantMappingController.getMappings);
        router.get("/health", (req, res) => res.send("ok"));
-       router.post("/mappings/:ownerId", merchantMappingController.updateMappings);
+       router.post("/updateMappings/:ownerId", merchantMappingController.updateMappings);
  
         const app = express();
      
