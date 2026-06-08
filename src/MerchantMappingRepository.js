@@ -63,6 +63,25 @@ function MerchantMappingRepository({ logTool,dbConnector,MerchantMappingModel })
 
         return await MerchantMappingModel.bulkWrite(operations);
     }
+
+
+    self.renewMappings = async function (ownerId, newMappings) {
+        
+        await MerchantMappingModel.deleteMany({ ownerId });
+        const mappingsToCreate = newMappings.map(m =>{
+            const {_id, ...dataWithoutId} = m; // Exclude _id if it exists
+            return {
+                ...dataWithoutId,
+                ownerId,
+                rawDescription: m.rawDescription,
+                updatedAt: new Date()
+            }
+
+        });
+        return await MerchantMappingModel.insertMany(mappingsToCreate);
+
+
+    }
 }
 
 export default MerchantMappingRepository;
