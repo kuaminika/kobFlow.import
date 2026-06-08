@@ -47,16 +47,22 @@ function MerchantMappingRepository({ logTool,dbConnector,MerchantMappingModel })
 
     self.bulkCreateOrUpdate = async function (ownerId, mappings) {
 
-    const operations = Object.entries(mappings).map(([rawDescription, data]) => ({
-        updateOne: {
-            filter: { rawDescription, ownerId },
-            update: { ...data, ownerId, rawDescription, updatedAt: new Date() },
-            upsert: true,
-        }
-    }));
+        const operations = Object.entries(mappings).map(([rawDescription, data]) => 
+        {
+            const {_id, ...dataWithoutId} = data; // Exclude _id if it exists
+            const result= {            
+                    updateOne: {
+                        filter: { rawDescription, ownerId },
+                        update: { ...dataWithoutId, ownerId, rawDescription, updatedAt: new Date() },
+                        upsert: true,
+                    }
+                }
+            return result;
+        });
+        
 
-    return await MerchantMappingModel.bulkWrite(operations);
-}
+        return await MerchantMappingModel.bulkWrite(operations);
+    }
 }
 
 export default MerchantMappingRepository;
