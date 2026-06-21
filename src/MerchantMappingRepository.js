@@ -64,8 +64,26 @@ function MerchantMappingRepository({ logTool,dbConnector,MerchantMappingModel })
         return await MerchantMappingModel.bulkWrite(operations);
     }
 
-
     self.renewMappings = async function (ownerId, newMappings) {
+        if (!Array.isArray(newMappings)) {
+            if (typeof newMappings === 'object' && newMappings !== null) {
+                logTool.log(`Received newMappings as an object. Converting to array format.`);
+                newMappings = Object.entries(newMappings).map(([rawDescription, data]) => {
+                    const {_id, ...dataWithoutId} = data; // Exclude _id if it exists
+                    return {
+                        ...dataWithoutId,
+                        rawDescription,
+                        ownerId,
+                        updatedAt: new Date()
+                    };
+                });
+            }
+            else {
+                logTool.log(`Invalid newMappings format: ${JSON.stringify(newMappings)}. Expected an array or an object.`);
+                throw new Error("newMappings must be an array or an object");         
+            } 
+        }
+
         logTool.log(`Renewing mappings for owner ${ownerId}. Deleting old mappings and inserting new ones.`);
         logTool.log(`New mappings to insert: ${JSON.stringify(newMappings)}`);
         await MerchantMappingModel.deleteMany({ ownerId });
