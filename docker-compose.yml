@@ -1,0 +1,15 @@
+
+services:
+  import-service:
+    build:
+      context: "."
+      dockerfile: "Dockerfile"
+    ports:
+      - "5011:3000"
+    env_file:
+      - .env
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./src
+          target: /app
