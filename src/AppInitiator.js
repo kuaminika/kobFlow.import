@@ -7,6 +7,7 @@ import MerchantMappingController from "./MerchantMappingController.js";
 import cors from "cors";
 import { Router } from "express";
 import MerchantLookupServiceCreator from "./factories/MerchantLookupServiceCreator.js";
+import HealthStatusController from "./HealthStatusController.js";
 const router = Router();
  function AppInitiator(configs)
 {
@@ -25,7 +26,7 @@ const router = Router();
         const importServiceCreator = new ImportServiceCreator({ logTool,configs });
         const expenseServiceCreator = new ExpenseServiceCreator({ logTool,configs });
         const merchantLookupServiceCreator = new MerchantLookupServiceCreator({logTool,configs});
-
+        const healthStatusController = new HealthStatusController({logTool,configs});
         const importService = await importServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues }).then(importService => {
             logTool.log("Import Service created successfully");
             return importService;
@@ -43,7 +44,7 @@ const router = Router();
        router.post("/parse-csv-expenses", expenseImportController.parseCSVExpenses);
        router.post("/bulk-insert-expenses", expenseImportController.doBulkInsert);
        router.get("/mappings/:ownerId", merchantMappingController.getMappings);
-       router.get("/health", (req, res) => res.send("ok"));
+       router.get("/health", healthStatusController.health);
        router.post("/mappings/:ownerId", merchantMappingController.updateMappings);
  
         const app = express();
