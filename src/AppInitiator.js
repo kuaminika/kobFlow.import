@@ -6,6 +6,7 @@ import ExpenseImportController from "./ExpenseImportController.js";
 import MerchantMappingController from "./MerchantMappingController.js";
 import cors from "cors";
 import { Router } from "express";
+import MerchantLookupServiceCreator from "./factories/MerchantLookupServiceCreator.js";
 const router = Router();
  function AppInitiator(configs)
 {
@@ -23,7 +24,8 @@ const router = Router();
 
         const importServiceCreator = new ImportServiceCreator({ logTool,configs });
         const expenseServiceCreator = new ExpenseServiceCreator({ logTool,configs });
-        
+        const merchantLookupServiceCreator = new MerchantLookupServiceCreator({logTool,configs});
+
         const importService = await importServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues }).then(importService => {
             logTool.log("Import Service created successfully");
             return importService;
@@ -31,10 +33,10 @@ const router = Router();
         }).catch(error => {
             logTool.log(`Error creating Import Service: ${error.message}`);
         });
-        
+        const merchantLookupService =  merchantLookupServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues });
         const expenseService =  expenseServiceCreator.create();
           logTool.log("Expense Service created successfully");
-
+          
        const expenseImportController = new ExpenseImportController({ logTool, importService, expenseService });
        const merchantMappingController = new MerchantMappingController({ logTool, merchantLookupService });
 
