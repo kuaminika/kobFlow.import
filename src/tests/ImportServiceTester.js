@@ -64,8 +64,13 @@ const ownerId = 1;
 
 
 const merchantMappingRepository = new MerchantMappingRepository({logTool,dbConnector,MerchantMappingModel :MerchantMapping});
-const merchantClassifier = new MerchantClassifier({merchants,logTool,ownerId});
-const merchantLookupService = new MerchantLookupService({merchantClassifier,merchantMappingRepository,logTool});
+
+const merchantClassifier = new MerchantClassifier({logTool,merchantClient});
+
+const merchantLookupService = new MerchantLookupService({merchantClassifier,
+    merchantMappingRepository,
+    logTool});
+
 
 const importService = new ImportService({csvParser,merchantLookupService,logTool,defaultValues});
 

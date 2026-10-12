@@ -8,10 +8,11 @@ function DBConnector_Mongoose({logTool,config}) {
   self.logTool = logTool;
   self.config = config;
   self.connect = async function() {
-    self.logTool.log("process.env.HTTP_PORT:",self.config.HTTP_PORT);
-    self.logTool.log("process.env.MONGO_URI:",_private.MONGO_URI);
+    self.logTool.log("process.env.HTTP_PORT:" + self.config.port);
+    self.logTool.log("process.env.MONGO_URI:" + _private.MONGO_URI);
     await mongoose.connect(_private.MONGO_URI);
     self.logTool.log('MongoDB connected');
+ 
   }
     
 }

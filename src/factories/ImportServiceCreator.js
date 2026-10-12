@@ -14,6 +14,9 @@ function ImportServiceCreator({ logTool,configs})
     const self = this;
     const _private = {};
     _private.logTool = logTool || new LogTool();
+
+  
+    _private.cachedMerchants =  new Map();// {fetched: false, data: []};
     const dbConnector = new DBConnector_Mongoose({ logTool: _private.logTool, config: configs });
     const csvParser = new CSVParser({ logTool: _private.logTool });
     const merchantClient = new APIClient({
@@ -22,23 +25,37 @@ function ImportServiceCreator({ logTool,configs})
         },
         apiKey: configs.MERCHANT_API_KEY
     });
-    self.create = async function({ ownerId, defaultValues }) {
-        const result = await merchantClient.fetch();
-        const merchants = result.subject;
 
+    
+    self.create =  function({ defaultValues }) {
+   
+  
+        const merchantLookupService =   self.createOnlyMerchantLookupService();
+
+        return new ImportService({ csvParser, merchantLookupService, logTool: _private.logTool, defaultValues });
+    }
+
+
+    self.createOnlyMerchantLookupService =   function() {
+         
         const merchantMappingRepository = new MerchantMappingRepository({
             logTool: _private.logTool,
             dbConnector,
             MerchantMappingModel: MerchantMapping
         });
 
-        const merchantClassifier = new MerchantClassifier({ merchants, logTool: _private.logTool, ownerId });
+        const merchantClassifier = new MerchantClassifier({  logTool: _private.logTool ,merchantClient });
         const merchantLookupService = new MerchantLookupService({ merchantClassifier,
             merchantMappingRepository,
             logTool:_private.logTool });
 
-        return new ImportService({ csvParser, merchantLookupService, logTool: _private.logTool, defaultValues });
+        return merchantLookupService;
+
     }
+
+     
+
+
 }
 
 

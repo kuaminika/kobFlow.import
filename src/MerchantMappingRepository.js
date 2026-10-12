@@ -10,6 +10,10 @@ function MerchantMappingRepository({ logTool,dbConnector,MerchantMappingModel })
         return await MerchantMappingModel.findOne({ rawDescription, ownerId });
     }
 
+    self.findAllByOwnerId = async function (ownerId) {
+        return await MerchantMappingModel.find({ ownerId });
+    }
+
     self.updateMapping = async function (rawDescription, ownerId, updateData) {
         return await MerchantMappingModel.findOneAndUpdate(
             { rawDescription, ownerId },
@@ -43,16 +47,63 @@ function MerchantMappingRepository({ logTool,dbConnector,MerchantMappingModel })
 
     self.bulkCreateOrUpdate = async function (ownerId, mappings) {
 
-    const operations = Object.entries(mappings).map(([rawDescription, data]) => ({
-        updateOne: {
-            filter: { rawDescription, ownerId },
-            update: { ...data, ownerId, rawDescription, updatedAt: new Date() },
-            upsert: true,
-        }
-    }));
+        const operations = Object.entries(mappings).map(([rawDescription, data]) => 
+        {
+            const {_id, ...dataWithoutId} = data; // Exclude _id if it exists
+            const result= {            
+                    updateOne: {
+                        filter: { rawDescription, ownerId },
+                        update: { ...dataWithoutId, ownerId, rawDescription, updatedAt: new Date() },
+                        upsert: true,
+                    }
+                }
+            return result;
+        });
+        
 
-    return await MerchantMappingModel.bulkWrite(operations);
-}
+        return await MerchantMappingModel.bulkWrite(operations);
+    }
+
+    self.renewMappings = async function (ownerId, newMappings) {
+        if (!Array.isArray(newMappings)) {
+            if (typeof newMappings === 'object' && newMappings !== null) {
+                logTool.log(`Received newMappings as an object. Converting to array format.`);
+                newMappings = Object.entries(newMappings).map(([rawDescription, data]) => {
+                    const {_id, ...dataWithoutId} = data; // Exclude _id if it exists
+                    return {
+                        ...dataWithoutId,
+                        rawDescription,
+                        ownerId,
+                        updatedAt: new Date()
+                    };
+                });
+            }
+            else {
+                logTool.log(`Invalid newMappings format: ${JSON.stringify(newMappings)}. Expected an array or an object.`);
+                throw new Error("newMappings must be an array or an object");         
+            } 
+        }
+
+        logTool.log(`Renewing mappings for owner ${ownerId}. Deleting old mappings and inserting new ones.`);
+        logTool.log(`New mappings to insert: ${JSON.stringify(newMappings)}`);
+        await MerchantMappingModel.deleteMany({ ownerId });
+        const mappingsToCreate = newMappings.map(m =>{
+            const {_id, ...dataWithoutId} = m; // Exclude _id if it exists
+            return {
+                ...dataWithoutId,
+                ownerId,
+                merchantId: m.merchantId||1,
+                merchantName: m.merchantName||"Unknown",
+                rawDescription: m.rawDescription,
+                updatedAt: new Date()
+            }
+
+        });
+        logTool.log(`Mappings to create after processing: ${JSON.stringify(mappingsToCreate)}`);
+        return await MerchantMappingModel.insertMany(mappingsToCreate);
+
+
+    }
 }
 
 export default MerchantMappingRepository;

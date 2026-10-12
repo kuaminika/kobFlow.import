@@ -25,19 +25,18 @@ const router = Router();
 
         const importServiceCreator = new ImportServiceCreator({ logTool,configs });
         const expenseServiceCreator = new ExpenseServiceCreator({ logTool,configs });
-        const merchantLookupServiceCreator = new MerchantLookupServiceCreator({logTool,configs});
-        const healthStatusController = new HealthStatusController({logTool,configs});
+        const merchantLookupServiceCreator = new MerchantLookupServiceCreator({ logTool, configs });
+        const healthStatusController = new HealthStatusController({ logTool, configs });
         const importService = await importServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues }).then(importService => {
             logTool.log("Import Service created successfully");
             return importService;
-            // You can now use the importService instance to handle imports
         }).catch(error => {
             logTool.log(`Error creating Import Service: ${error.message}`);
         });
-        const merchantLookupService =  merchantLookupServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues });
-        const expenseService =  expenseServiceCreator.create();
+        const merchantLookupService = merchantLookupServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues });
+        const expenseService = expenseServiceCreator.create();
           logTool.log("Expense Service created successfully");
-          
+          logTool.log("Merchant Lookup Service created successfully");
        const expenseImportController = new ExpenseImportController({ logTool, importService, expenseService });
        const merchantMappingController = new MerchantMappingController({ logTool, merchantLookupService });
 
@@ -45,7 +44,7 @@ const router = Router();
        router.post("/bulk-insert-expenses", expenseImportController.doBulkInsert);
        router.get("/mappings/:ownerId", merchantMappingController.getMappings);
        router.get("/health", healthStatusController.health);
-       router.post("/mappings/:ownerId", merchantMappingController.updateMappings);
+       router.post("/updateMappings/:ownerId", merchantMappingController.updateMappings);
  
         const app = express();
      
