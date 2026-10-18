@@ -74,7 +74,8 @@ cp .env.sample.txt .env
 | `HTTP_PORT` | Port the service listens on (default sample: `3000`) |
 | `SERVICE_NAME`, `APPLICATION_NAME` | Shown in logs |
 | `CORS_ORIGIN` | Allowed CORS origin (`*` for any) |
-| `EXPENSE_API_BASE_URL`, `EXPENSE_API_KEY` | kobFlow Expense API, called with `Authorization: Bearer <key>` |
+| `EXPENSE_API_BASE_URL` | kobFlow Expense API base URL |
+| `EXPENSE_API_KEY` | Not used yet: the Expense API doesn't require a key, so `configs.js` doesn't read it |
 | `MERCHANT_GETALL_URL`, `MERCHANT_API_KEY` | Endpoint that returns `{ subject: [{ id, name }, ...] }` merchants |
 | `MONGO_USERNAME`, `MONGO_PASSWORD`, `MONGO_HOST`, `MONGO_DB_NAME`, `MONGO_CLUSTER_NAME` | MongoDB Atlas connection |
 | `DEFAULT_ORG_ID` | Default organisation id |

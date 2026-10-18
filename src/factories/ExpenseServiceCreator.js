@@ -2,13 +2,13 @@
 import LogTool from "../LogTool.js";
 import APIClient from "../util/APIClient.js";
 import ExpenseService from "../services/ExpenseService.js";
-import ImportServiceCreator from "../factories/ImportServiceCreator.js";
 
-function ExpenseServiceCreator({logtool,configs}) {
+
+function ExpenseServiceCreator({logTool,configs}) {
 
     const self = this;
     const _private = {};
-    _private.logTool = logtool|| new LogTool();
+    _private.logTool = logTool|| new LogTool();
 
     self.create = function(){
         const expenseApiClient= new APIClient({

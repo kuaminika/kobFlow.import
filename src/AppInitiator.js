@@ -8,6 +8,7 @@ import cors from "cors";
 import { Router } from "express";
 import MerchantLookupServiceCreator from "./factories/MerchantLookupServiceCreator.js";
 import HealthStatusController from "./HealthStatusController.js";
+import DBConnector_Mongoose from "./util/DBConnector_Mongoose.js";
 const router = Router();
  function AppInitiator(configs)
 {
@@ -21,19 +22,20 @@ const router = Router();
     };
     self.init =async  function(){
 
-        logTool.log("Initializing application with configs: " + JSON.stringify(configs));
+        // Connect before building services so a database failure stops startup.
+        const dbConnector = new DBConnector_Mongoose({ logTool, config: configs });
+        await dbConnector.connect();
 
+     
         const importServiceCreator = new ImportServiceCreator({ logTool,configs });
         const expenseServiceCreator = new ExpenseServiceCreator({ logTool,configs });
         const merchantLookupServiceCreator = new MerchantLookupServiceCreator({ logTool, configs });
         const healthStatusController = new HealthStatusController({ logTool, configs });
-        const importService = await importServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues }).then(importService => {
-            logTool.log("Import Service created successfully");
-            return importService;
-        }).catch(error => {
-            logTool.log(`Error creating Import Service: ${error.message}`);
-        });
-        const merchantLookupService = merchantLookupServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues });
+        const importService = await importServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues });
+        
+        logTool.log("Import Service created successfully");
+    
+        const merchantLookupService =await  merchantLookupServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues });
         const expenseService = expenseServiceCreator.create();
           logTool.log("Expense Service created successfully");
           logTool.log("Merchant Lookup Service created successfully");
@@ -52,10 +54,14 @@ const router = Router();
         logTool.log("CORS origin: " + config.corsOrigin);
         app.use(express.json());
         app.use("/",router);
-        app.listen(config.port,()=>{
+        const server = app.listen(config.port,()=>{
             logTool.log(`service running  ${config.serviceName} at port ${config.port}`)
 
         })
+        server.on("error", error => {
+            logTool.critical(`HTTP server error: ${error.message}`, { stack: error.stack });
+            process.exit(1);
+        });
 
 
     }

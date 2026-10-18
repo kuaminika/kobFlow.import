@@ -1,6 +1,8 @@
 function MerchantMappingRepository({ logTool,dbConnector,MerchantMappingModel }) {
     const self = this;
-    dbConnector.connect();
+    dbConnector.connect().catch(error => {
+        logTool.error(`MongoDB connection failed: ${error.message}`, { stack: error.stack });
+    });
 
     self.createMapping = async function (rawInfo) {
         await MerchantMappingModel.create(rawInfo);

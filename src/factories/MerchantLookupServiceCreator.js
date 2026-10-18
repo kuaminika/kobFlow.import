@@ -18,15 +18,13 @@ function MerchantLookupServiceCreator({logTool,configs}){
         },
         apiKey: configs.MERCHANT_API_KEY
     });
-    self.create =async function({ownerId, defaultValues})
+    self.create = function({ownerId, defaultValues})
     {
 
-        
-        const result = await merchantClient.fetch();
-        const merchants = result.subject;
+         
         
         const merchantMappingRepository = new MerchantMappingRepository({logTool,dbConnector,MerchantMappingModel :MerchantMapping});
-        const merchantClassifier = new MerchantClassifier({merchants,logTool,ownerId});
+        const merchantClassifier = new MerchantClassifier({merchantClient,logTool,ownerId});
         const merchantLookupService = new MerchantLookupService({merchantClassifier,merchantMappingRepository,logTool});
         return merchantLookupService;
     }
