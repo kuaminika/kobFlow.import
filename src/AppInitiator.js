@@ -35,7 +35,7 @@ const router = Router();
         
         logTool.log("Import Service created successfully");
     
-        const merchantLookupService =await  merchantLookupServiceCreator.create({ ownerId: config.OWNER_ID, defaultValues });
+        const merchantLookupService =await  merchantLookupServiceCreator.create({ ownerId: config.OWNER_ID,dbKonnector:dbConnector, defaultValues });
         const expenseService = expenseServiceCreator.create();
           logTool.log("Expense Service created successfully");
           logTool.log("Merchant Lookup Service created successfully");
