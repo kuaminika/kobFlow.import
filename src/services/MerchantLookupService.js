@@ -12,6 +12,50 @@ function MerchantLookupService({ merchantClassifier, logTool,merchantMappingRepo
         return await self.repo.findAllByOwnerId(ownerId);
     }
 
+    self.addMapping = async function(mapping, ownerId)
+    {
+        if (!mapping || typeof mapping !== "object" || Array.isArray(mapping) ||
+            typeof mapping.rawDescription !== "string" || !mapping.rawDescription.trim()) {
+            throw new Error("mapping must include a non-empty rawDescription");
+        }
+
+        const mappingToCreate = { ...mapping, rawDescription: mapping.rawDescription.trim(), ownerId };
+        self.logTool.log(`Adding mapping for owner ${ownerId}: ${JSON.stringify(mappingToCreate)}`);
+        return await self.repo.createMapping(mappingToCreate);
+    }
+
+    self.updateMapping = async function(mapping, ownerId)
+    {
+        if (!mapping || typeof mapping !== "object" || Array.isArray(mapping) ||
+            typeof mapping.rawDescription !== "string" || !mapping.rawDescription.trim()) {
+            throw new Error("mapping must include a non-empty rawDescription");
+        }
+
+        const updateData = {};
+        for (const field of ["merchantId", "merchantName", "confidence", "confirmedByUser"]) {
+            if (Object.hasOwn(mapping, field)) {
+                updateData[field] = mapping[field];
+            }
+        }
+        if (Object.keys(updateData).length === 0) {
+            throw new Error("mapping must include at least one field to update");
+        }
+
+        self.logTool.log(`Updating mapping for owner ${ownerId}: ${JSON.stringify(mapping)}`);
+        return await self.repo.updateMapping(mapping.rawDescription.trim(), ownerId, updateData);
+    }
+
+    self.deleteMapping = async function(mapping, ownerId)
+    {
+        if (!mapping || typeof mapping !== "object" || Array.isArray(mapping) ||
+            typeof mapping.rawDescription !== "string" || !mapping.rawDescription.trim()) {
+            throw new Error("mapping must include a non-empty rawDescription");
+        }
+
+        self.logTool.log(`Deleting mapping for owner ${ownerId}: ${mapping.rawDescription}`);
+        return await self.repo.deleteMapping(mapping.rawDescription.trim(), ownerId);
+    }
+
     self.lookup = async function({ description ,ownerId}) {
         await self.classifier.getMerchantsForOwner(ownerId); // Ensure classifier has the latest merchants for the owner
         self.logTool.log(`Looking up merchant for description "${description}"... and ownerId ${ownerId}`);
@@ -29,6 +73,7 @@ function MerchantLookupService({ merchantClassifier, logTool,merchantMappingRepo
         this.logTool.log(`Repository match: ${JSON.stringify(fromRepo)}`);
         return fromRepo;
     }
+
 
     self.updateMappings = async function(newMappings,ownerId)
     {

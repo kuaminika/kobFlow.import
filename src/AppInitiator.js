@@ -45,6 +45,9 @@ const router = Router();
        router.post("/parse-csv-expenses", expenseImportController.parseCSVExpenses);
        router.post("/bulk-insert-expenses", expenseImportController.doBulkInsert);
        router.get("/mappings/:ownerId", merchantMappingController.getMappings);
+       router.post("/mappings/:ownerId", merchantMappingController.addMapping);
+       router.put("/mappings/:ownerId", merchantMappingController.updateMapping);
+       router.delete("/mappings/:ownerId", merchantMappingController.deleteMapping);
        router.get("/health", healthStatusController.health);
        router.post("/updateMappings/:ownerId", merchantMappingController.updateMappings);
  

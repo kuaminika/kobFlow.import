@@ -5,7 +5,7 @@ function MerchantMappingRepository({ logTool,dbConnector,MerchantMappingModel })
     });
 
     self.createMapping = async function (rawInfo) {
-        await MerchantMappingModel.create(rawInfo);
+        return await MerchantMappingModel.create(rawInfo);
     }
 
     self.findByDescription = async function (rawDescription, ownerId) {
@@ -22,6 +22,10 @@ function MerchantMappingRepository({ logTool,dbConnector,MerchantMappingModel })
             { ...updateData, updatedAt: new Date() },
             { new: true }
         );
+    }
+
+    self.deleteMapping = async function (rawDescription, ownerId) {
+        return await MerchantMappingModel.findOneAndDelete({ rawDescription, ownerId });
     }
 
     self.createOrUpdate = async function (rawDescription, ownerId, data) {

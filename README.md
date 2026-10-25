@@ -31,6 +31,9 @@ All request bodies are JSON (`Content-Type: application/json`).
 | `POST` | `/parse-csv-expenses` | `{ "csvContent": "<raw csv>", "ownerId": 1 }` | `{ "expenses": [ ... ] }` |
 | `POST` | `/bulk-insert-expenses` | `{ "expenses": [ ... ] }` | `{ "message": "Bulk insert successful" }` |
 | `GET`  | `/mappings/:ownerId` | — | Array of stored mappings |
+| `POST` | `/mappings/:ownerId` | `{ "mapping": { "rawDescription", "merchantId", "merchantName", ... } }` | `{ "message": "Mapping added successfully", "mappingAdded": ... }` |
+| `PUT` | `/mappings/:ownerId` | `{ "mapping": { "rawDescription", ...fields to update } }` | `{ "message": "Mapping updated successfully", "mappingUpdated": ... }` |
+| `DELETE` | `/mappings/:ownerId` | `{ "mapping": { "rawDescription" } }` | `{ "message": "Mapping deleted successfully", "mappingDeleted": ... }` |
 | `POST` | `/updateMappings/:ownerId` | `{ "mappings": [ { "rawDescription", "merchantId", "merchantName", ... } ] }` or an object keyed by description | `{ "message": "Mappings updated successfully" }` |
 
 Example:
