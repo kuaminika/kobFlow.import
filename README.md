@@ -107,6 +107,7 @@ The container listens on `3000`; `docker-compose.yml` maps it to host port `5011
 There is no test runner yet. The files in [src/tests/](src/tests/) are standalone scripts you run by hand. Most of them need a valid `.env` and access to the network or database.
 
 ```bash
+node src/tests/testMerchantMappingCRUD.js  # mapping CRUD with an in-memory model
 node src/tests/testCSVParser.js           # CSV parsing only
 node src/tests/testMerchantClassifier.js  # classification against src/tests/data/merchants.json
 node src/tests/ImportServiceTester.js     # full import pipeline (MongoDB + merchant API)
