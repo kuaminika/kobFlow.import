@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
+import LogTool from "../LogTool.js";
 import MerchantMappingRepository from "../MerchantMappingRepository.js";
 import MerchantLookupService from "../services/MerchantLookupService.js";
 
 const mappings = [];
-const logTool = { log() {}, error() {} };
+const logTool = new LogTool({ service: "MerchantMappingCRUDTest" });
 const dbConnector = { connect: async () => {} };
 const merchantMappingModel = {
     async create(mapping) {
